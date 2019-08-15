@@ -3,7 +3,7 @@ import chalk from 'chalk';
 import * as config from '../../../../lib/config';
 import {Options, TestOptions} from '../../../../lib/types';
 import {isLocalFolder} from '../../../../lib/detect';
-import { WIZARD_SUPPORTED_PACKAGE_MANAGERS } from '../../../../lib/package-managers';
+import { WIZARD_SUPPORTED_PACKAGE_MANAGERS, SupportedPackageManagers, PINNING_SUPPORTED_PACKAGE_MANAGERS } from '../../../../lib/package-managers';
 import { GroupedVuln } from '../../../../lib/snyk-test/legacy';
 
 export function formatIssues(vuln: GroupedVuln, options: Options & TestOptions) {
@@ -141,6 +141,13 @@ function createRemediationText(vuln, packageManager) {
     wizardHintText = 'Run `snyk wizard` to explore remediation options.';
   }
 
+  if ((vuln.nearestFixedInVersion || vuln.fixedIn) && PINNING_SUPPORTED_PACKAGE_MANAGERS.includes(packageManager)) {
+    const toVersion = vuln.nearestFixedInVersion || vuln.fixedIn.join(' or ');
+    const transitive = vuln.list.every((i) => i.from.length > 2);
+
+    const action = transitive ? 'Pin the transitive' : 'Update the';
+    return chalk.bold(`\n  Remediation: \n    ${action} dependency ${vuln.name} to version ${toVersion}`);
+  }
   if (vuln.isFixable === true) {
     const upgradePathsArray = _.uniq(vuln.list.map((v) => {
       const shouldUpgradeItself = !!v.upgradePath[0];
