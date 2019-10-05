@@ -55,7 +55,7 @@
     "shelljs": "latest",
     "swig": "latest",
     "view-helpers": "latest",
-    "snyk": "*"
+    "snyk": "^1.231.0"
   },
   "devDependencies": {
     "del": "latest",
